@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <div>
+      <button onclick="display();">カレンダーイベントを表示</button>
+      <button onclick="sendMail();">カレンダーイベントをメール送信</button>
+    </div>
+    <div id="messageContainer">
+    </div>
+    <pre id="eventsContainer">
+    </pre>
+    <input type="hidden" id="receipt" value="<?= RECEIPT_MAIL_ADDRESS; ?>">
+  <script type="text/javascript">
+  function display() {
+    google.script.run.withSuccessHandler(function(textContent) {
+      document.getElementById('eventsContainer').textContent = textContent;
+    }).withFailureHandler(displayError)
+    .executeGetCalendarEventsTextContent();
+  }
+  function sendMail() {
+    var receipt = document.getElementById('receipt').value;
+    if (!confirm(receipt + 'にカレンダーデータを送信します。よろしいですか？')) {
+        return;
+    }
+    google.script.run.withSuccessHandler(function(textContent) {
+      displayMessage('メールを送信しました。');
+    }).withFailureHandler(displayError)
+    .executeSendMailCalendarEvents();
+  }
+  function displayMessage(message) {
+    document.getElementById('messageContainer').textContent = message;
+  }
+  function displayError(error) {
+    displayMessage('エラーが発生しました。' + error.message);
+  }
+  </script>
+  </body>
+</html>
